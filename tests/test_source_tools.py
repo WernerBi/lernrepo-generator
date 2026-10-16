@@ -73,3 +73,11 @@ def test_icons_embed_license_and_reject_active_svg(course):
     write(course.root / 'curation/icons/book.svg', '<svg><script>alert(1)</script></svg>')
     with pytest.raises(ValueError):
         icons(course)
+
+
+def test_safe_svg_preserves_local_arrow_markers_and_blocks_external_references():
+    from pipeline.figure_tools import safe_svg
+    text = '<svg xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrow"><path d="M0 0L5 5"/></marker></defs><path d="M0 0L20 20" marker-end="url(#arrow)"/></svg>'
+    assert safe_svg(text).tag.endswith('svg')
+    with pytest.raises(ValueError):
+        safe_svg(text.replace('url(#arrow)', 'url(https://example.test/evil)'))

@@ -13,14 +13,20 @@ ET.register_namespace('', NS)
 def safe_svg(text):
     root = ET.fromstring(text)
     allowed = {'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon',
-               'text', 'tspan', 'title', 'desc', 'defs', 'clipPath', 'linearGradient', 'radialGradient', 'stop'}
+               'text', 'tspan', 'title', 'desc', 'defs', 'clipPath', 'linearGradient', 'radialGradient', 'stop', 'marker', 'symbol', 'use', 'style'}
     for element in root.iter():
         if element.tag.split('}')[-1] not in allowed:
             raise ValueError('Nicht erlaubter Inhalt in SVG')
         for key, value in element.attrib.items():
             key = key.split('}')[-1].lower()
-            if key.startswith('on') or key in {'href', 'src'} or 'url(' in value.lower() or '<' in value:
+            urls = re.findall(r'url\((.*?)\)', value, flags=re.I)
+            if (key.startswith('on') or key == 'src' or key == 'href' and not value.startswith('#')
+                    or any(not url.strip().strip('\"\'').startswith('#') for url in urls)
+                    or '<' in value or 'javascript:' in value.lower()):
                 raise ValueError('Aktiver oder externer SVG-Inhalt ist nicht erlaubt')
+        if element.tag.split('}')[-1] == 'style' and element.text:
+            if '@' in element.text or 'url(' in element.text.lower() or 'javascript:' in element.text.lower():
+                raise ValueError('Externe SVG-Styles sind nicht erlaubt')
     if root.tag.split('}')[-1] != 'svg':
         raise ValueError('SVG-Wurzel fehlt')
     return root
