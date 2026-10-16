@@ -5,8 +5,12 @@ from .io import digest, file_hash, identifier, read, write
 
 
 def state(course):
-    return {"config": course.data, "manifest": read(course.path("manifest")),
-            "structure": read(course.path("structure"))}
+    value = {"config": course.data, "manifest": read(course.path("manifest")),
+             "structure": read(course.path("structure"))}
+    path = course.root / 'curation/text-corrections.json'
+    if path.exists():
+        value['text_corrections'] = read(path)
+    return value
 
 
 def review(course, reviewer):
@@ -24,6 +28,16 @@ def check_structure(course):
     if not manifest or not structure:
         return ["Import oder Struktur fehlt"]
     errors, seen, covered = [], set(), set()
+    try:
+        from .chapters import discover
+        discover(course)
+        from .source_tools import apply_corrections
+        for sid in manifest['sources']:
+            path = course.path('extracted') / f'{identifier(sid)}-pages.json'
+            if path.exists():
+                apply_corrections(course, sid, read(path))
+    except ValueError as exc:
+        errors.append(str(exc))
     for section in structure["sections"]:
         identifier(section["id"])
         if section["id"] in seen:

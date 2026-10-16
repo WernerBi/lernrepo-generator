@@ -80,4 +80,6 @@ def run(course):
 
 
 def page_map(course, sid):
-    return {p["pdf_page"]: p for p in read(course.path("extracted") / f"{identifier(sid)}-pages.json", [])}
+    from .source_tools import apply_corrections
+    pages = read(course.path("extracted") / f"{identifier(sid)}-pages.json", [])
+    return {p['pdf_page']: p for p in apply_corrections(course, sid, pages)}
