@@ -50,7 +50,7 @@ Kurs-ID. Bestehende Agentenantworten bleiben gültig; neue Kartenfelder sind opt
 
 ## Verbindliche Grenzen
 
-- Python >=3.11; Node.js >=22 für Reader-Build, nicht für die Wiedergabe.
+- Python >=3.11; Node.js >=22.13 für Reader-Build, nicht für die Wiedergabe.
 - Deutsch in Dokumentation und Oberfläche; Titel und IDs aus Kurskonfiguration.
 - Keine kostenpflichtigen Modellaufrufe oder Übertragung von Kursmaterialien.
 - Originale, Extraktionen, Audios und persönlicher Fortschritt bleiben git-ignoriert.

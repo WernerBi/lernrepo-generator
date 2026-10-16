@@ -92,3 +92,13 @@ def test_reader_rejects_ambiguous_or_unassigned_audio(reader_course):
     write(c.root / 'audio/testkurs-1-Anderes.mp3', 'two')
     with pytest.raises(ValueError, match='Mehrere'):
         run(c)
+
+
+def test_packaging_refuses_timeline_changed_after_reader_build(reader_course):
+    from pipeline.reader import run
+    from pipeline.reader_package import run as package
+    c = reader_course
+    run(c)
+    write(c.root / 'curation/interactive/testkurs-1-Timeline.json', {'version': 1, 'annotations': []})
+    with pytest.raises(ValueError, match='Exportquelle'):
+        package(c)

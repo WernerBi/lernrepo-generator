@@ -11,14 +11,14 @@ Kurse verfügbar machen und als getesteten Pull Request liefern.
 Reader-Assets werden generalisiert, fachliche Referenzdaten bleiben ausgeschlossen.
 Bestehende Version-1-Kurse und Agentenantworten bleiben kompatibel.
 
-**Tech Stack:** Python >=3.11, PyMuPDF, Markdown, matplotlib, genanki; Node.js >=22,
+**Tech Stack:** Python >=3.11, PyMuPDF, Markdown, matplotlib, genanki; Node.js >=22.13,
 PDF.js, Browser-Service-Worker; optional faster-whisper ausschließlich lokal.
 
 **Spec:** [Entwurf](../specs/2026-10-16-course-tool-parity-design.md)
 
 ## Global Constraints
 
-- Python >=3.11; Node.js >=22 für Reader-Build, nicht für die Wiedergabe.
+- Python >=3.11; Node.js >=22.13 für Reader-Build, nicht für die Wiedergabe.
 - Deutsch in Dokumentation und Oberfläche; Titel und IDs aus Kurskonfiguration.
 - Keine kostenpflichtigen Modellaufrufe oder Übertragung von Kursmaterialien.
 - Originale, Extraktionen, Audios und persönlicher Fortschritt bleiben git-ignoriert.
@@ -35,7 +35,7 @@ PDF.js, Browser-Service-Worker; optional faster-whisper ausschließlich lokal.
 `title`, `sections`, `stem`; `chapters.prefix(course) -> str` validiert Exportpräfix.
 `generator.create` und `upgrade` behalten ihre Aufrufsignaturen.
 
-- [ ] Rot: zwei Kapitel mit anderem Präfix, Legacy-Fallback und unbekannten/doppelt
+- [x] Rot: zwei Kapitel mit anderem Präfix, Legacy-Fallback und unbekannten/doppelt
   zugeordneten Abschnitten prüfen; erzeugten Kurs als eigenes Python-Programm starten.
 
 ```python
@@ -44,12 +44,12 @@ assert chapters[0]['stem'] == 'physik-1-Grundlagen'
 assert chapters[1]['sections'] == ['sec-2']
 ```
 
-- [ ] `python -m pytest tests/test_course_tools.py` ausführen; fehlendes Modul bestätigen.
-- [ ] Kapitelvalidierung und vollständige Asset-Kopie implementieren. Upgrade prüft
+- [x] `python -m pytest tests/test_course_tools.py` ausführen; fehlendes Modul bestätigen.
+- [x] Kapitelvalidierung und vollständige Asset-Kopie implementieren. Upgrade prüft
   `pipeline/`, `interactive/`, Tests, Konfiguration und Startskript vor jedem Schreiben.
   Ohne Git werden sämtliche ersetzten Dateien gesichert. Kurskonfiguration bleibt erhalten.
-- [ ] Negativfälle und vollständige bestehende Tests ausführen.
-- [ ] Commit: `feat: add portable chapters and complete tool upgrades`.
+- [x] Negativfälle und vollständige bestehende Tests ausführen.
+- [x] Commit: `feat: add portable chapters and complete tool upgrades`.
 
 ## Task 2: Quellenkorrekturen und Abbildungen
 
@@ -60,7 +60,7 @@ assert chapters[1]['sections'] == ['sec-2']
 `figure_tools.detect(course) -> dict`; `figure_tools.icons(course) -> dict`.
 Korrekturen in `curation/text-corrections.json`, geprüfte Abbildungen in der Struktur.
 
-- [ ] Rot: exakter Austausch mit Quellenhash, unverändertes Original, erneute
+- [x] Rot: exakter Austausch mit Quellenhash, unverändertes Original, erneute
   Anwendung ohne Doppelkorrektur, Ablehnung nicht auffindbarer Originalstelle testen.
 
 ```python
@@ -68,12 +68,12 @@ pages = apply_corrections(course, 'skript', extracted_pages)
 assert pages[0]['text'] == 'Energie bleibt erhalten.'
 ```
 
-- [ ] Rot: Bildkandidat wird nur vorgeschlagen; Icon ohne Lizenz oder mit externen
+- [x] Rot: Bildkandidat wird nur vorgeschlagen; Icon ohne Lizenz oder mit externen
   Referenzen wird abgelehnt; Originalausschnitte gelangen nicht in Export.
-- [ ] Korrekturen nachvollziehbar auf Arbeitskopie der Extraktion anwenden, in
+- [x] Korrekturen nachvollziehbar auf Arbeitskopie der Extraktion anwenden, in
   Freigabe-Hash einbeziehen und im Review-Paket anzeigen. PDF-Bildregionen vorschlagen.
-- [ ] Lokale Icon-Einbettung mit Lizenzprovenienz und SVG-Prüfung implementieren.
-- [ ] Tests ausführen und committen: `feat: add reviewed text and figure curation`.
+- [x] Lokale Icon-Einbettung mit Lizenzprovenienz und SVG-Prüfung implementieren.
+- [x] Tests ausführen und committen: `feat: add reviewed text and figure curation`.
 
 ## Task 3: Kapitelkontext, PDFs und Exportpakete
 
@@ -83,7 +83,7 @@ assert pages[0]['text'] == 'Energie bleibt erhalten.'
 **Interfaces:** `chapter_exports.notebooklm(course) -> dict`, `pdf_export.run(course)
 -> dict`, `release.run(course) -> dict`; PDFs unter `build/pdf/<chapter.stem>.pdf`.
 
-- [ ] Rot: Kontext enthält Leitfaden, echte Fragen und gesamten Kurs; Kapitelpräfix
+- [x] Rot: Kontext enthält Leitfaden, echte Fragen und gesamten Kurs; Kapitelpräfix
   folgt Konfiguration; PDF lässt sich öffnen und hat Text/Inhaltsverzeichnis.
 
 ```python
@@ -92,11 +92,11 @@ with pymupdf.open(pdf_path) as pdf:
     assert pdf.get_toc()
 ```
 
-- [ ] Direkte PDFs mit Tabellen, Formeln und kuratierten SVGs bauen; keine Kopie der
+- [x] Direkte PDFs mit Tabellen, Formeln und kuratierten SVGs bauen; keine Kopie der
   Original-PDFs oder -Bilder. Bestehende Markdown-/TeX-Ausgaben beibehalten.
-- [ ] Deterministische Kapitel- und Gesamt-ZIPs mit Positivliste der erzeugten
+- [x] Deterministische Kapitel- und Gesamt-ZIPs mit Positivliste der erzeugten
   Dateien; veraltete Build-Artefakte nicht stillschweigend verpacken.
-- [ ] Tests ausführen und committen: `feat: export chapter contexts and rich PDFs`.
+- [x] Tests ausführen und committen: `feat: export chapter contexts and rich PDFs`.
 
 ## Task 4: Anki-Typen und belegte Prüfungsanalyse
 
@@ -106,12 +106,12 @@ with pymupdf.open(pdf_path) as pdf:
 **Interfaces:** `anki_export.run(course) -> dict`, `exam_analysis.run(course) -> dict`.
 Optionale Kartenfelder `kind` und `cloze`; unbekannte Felder bleiben verboten.
 
-- [ ] Rot: APKG öffnen, Lückentextmodell, Kapitelpakete, SVG-Zeichenkarten und
+- [x] Rot: APKG öffnen, Lückentextmodell, Kapitelpakete, SVG-Zeichenkarten und
   gleichbleibende GUIDs prüfen; Studierendenkarten als unverifiziert kennzeichnen.
-- [ ] Rot: echte Aufgaben zweier belegter Termine zählen, KI-Fragen ausschließen;
+- [x] Rot: echte Aufgaben zweier belegter Termine zählen, KI-Fragen ausschließen;
   ohne Datum keine erfundene Terminzahl.
-- [ ] Implementieren, bestehende Antwortfixtures unverändert akzeptieren.
-- [ ] Tests ausführen und committen: `feat: expand Anki exports and exam analysis`.
+- [x] Implementieren, bestehende Antwortfixtures unverändert akzeptieren.
+- [x] Tests ausführen und committen: `feat: expand Anki exports and exam analysis`.
 
 ## Task 5: Reader, lokale Audiozuordnung und HTML
 
@@ -123,16 +123,16 @@ Optionale Kartenfelder `kind` und `cloze`; unbekannte Felder bleiben verboten.
 -> dict`, `reader_package.run(course) -> dict`. Timeline-Vertrag Version 1 bindet
 Kapitelnummer und SHA-256 von PDF/Audio, Zeitintervalle und normierte Koordinaten.
 
-- [ ] Rot: Reader ohne Audio baubar; richtige Medien-/PDF-Zuordnung; veralteter
+- [x] Rot: Reader ohne Audio baubar; richtige Medien-/PDF-Zuordnung; veralteter
   Hash, ungültige Seiten und Pfade werden abgelehnt; kuratierte Timeline bleibt erhalten.
-- [ ] Allgemeine Reader-Assets und Range-Server aus Referenz übernehmen; GIL-Namen,
+- [x] Allgemeine Reader-Assets und Range-Server aus Referenz übernehmen; GIL-Namen,
   Kurs-Icons und feste Kapitel durch Kurskonfiguration ersetzen.
-- [ ] Lokale ASR erst mit `--start`; Cache berücksichtigt Audio und Modell, neue
+- [x] Lokale ASR erst mit `--start`; Cache berücksichtigt Audio und Modell, neue
   Zuordnungen bleiben ungeprüft; keine automatische Modellinstallation beim Build.
-- [ ] HTML mit eingebettetem PDF.js, PDF, optionalem Audio und Timeline erzeugen;
+- [x] HTML mit eingebettetem PDF.js, PDF, optionalem Audio und Timeline erzeugen;
   Sonderzeichen im Titel dürfen HTML/JavaScript nicht beenden.
-- [ ] `node --test interactive/*.test.mjs` und Python-Tests ausführen.
-- [ ] Commit: `feat: add portable PDF audio reader and offline chapters`.
+- [x] `node --test interactive/*.test.mjs` und Python-Tests ausführen.
+- [x] Commit: `feat: add portable PDF audio reader and offline chapters`.
 
 ## Task 6: Integration, Dokumentation und Pull Request
 
@@ -140,14 +140,19 @@ Kapitelnummer und SHA-256 von PDF/Audio, Zeitintervalle und normierte Koordinate
 `docs/arbeitsablauf.md`, `docs/code-herkunft.md`, `docs/generator-architektur.md`,
 `tests/test_tool_parity.py`, `curation/ai-log.jsonl`.
 
-- [ ] Synthetischen neuen Kurs durch sämtliche CLI-Befehle und Werkzeugupdate
+- [x] Synthetischen neuen Kurs durch sämtliche CLI-Befehle und Werkzeugupdate
   führen; alter Version-1-Kurs bleibt kompatibel. Vollständige Python-/JS-Suite.
-- [ ] Im Browser Desktop/Mobilansicht, PDF-Navigation, Audio-Sprung, Offline-Cache
+- [x] Im Browser Desktop/Mobilansicht, PDF-Navigation, Audio-Sprung, Offline-Cache
   und eigenständiges HTML mit ausschließlich synthetischen Daten prüfen.
-- [ ] Herkunft jedes übernommenen technischen Moduls, Grenzen und Befehle
+- [x] Herkunft jedes übernommenen technischen Moduls, Grenzen und Befehle
   dokumentieren; KI-Durchgang über `pipeline.ailog.append` protokollieren.
-- [ ] `git diff --check`, Branch-/Commit-Konventionen und Diff auf Kursdaten prüfen.
-- [ ] Commit: `test: verify complete course tooling and document workflow`.
+- [x] `git diff --check`, Branch-/Commit-Konventionen und Diff auf Kursdaten prüfen.
+- [x] Commit: `test: verify complete course tooling and document workflow`.
 - [ ] Branch normal pushen und Pull Request erstellen; bei fehlenden Zielrechten
   autorisierten Fork-Weg versuchen. CI abwarten und bestätigte Fehler beheben.
   Kein Merge. Wenn GitHub den PR technisch verweigert, exakten Hinderungsgrund melden.
+
+## Prüfnachweis
+
+[Lokale Prüfungen und Grenzen](../../pruefung-2026-10-16.md). Der letzte Schritt
+bleibt bis zum GitHub-PR und dessen CI-Status separat nachvollziehbar.

@@ -47,6 +47,8 @@ def test_direct_pdf_has_readable_text_tables_outline_and_own_figure(course):
         assert 'Energie' in text and 'Arbeit' in text and '12' in text
         assert doc.get_toc()
         assert any(page.get_images() for page in doc)
+    with pymupdf.open(course.root / 'build/pdf/testkurs-Gesamtskript.pdf') as doc:
+        assert sum(len(page.get_images()) for page in doc) >= 2  # formula and own figure
 
 
 def test_release_is_deterministic_and_excludes_originals_and_unlisted_files(course):
@@ -76,3 +78,18 @@ def test_exports_reject_modified_generated_material(course):
     next(course.path('content').glob('*-skript.md')).write_text('tampered', encoding='utf-8')
     with pytest.raises(ValueError, match='verändert'):
         notebooklm(course)
+
+
+def test_notebook_context_explains_figures_without_original_image_links(course):
+    from pipeline.chapter_exports import notebooklm
+    structure = read(course.path('structure'))
+    structure['figures'] = [dict(id='abb-01', source='skript', page=1, title='Energiekurve', bbox=[0,0,10,10],
+                                 description='Die horizontale Achse zeigt die Zeit, die vertikale die Energie.')]
+    write(course.path('structure'), structure)
+    from pipeline.jobs import review
+    review(course, 'test')
+    prepare(course)
+    notebooklm(course)
+    text = next((course.root / 'build/notebooklm').glob('*.md')).read_text(encoding='utf-8')
+    assert 'horizontale Achse' in text
+    assert '![Energiekurve]' not in text

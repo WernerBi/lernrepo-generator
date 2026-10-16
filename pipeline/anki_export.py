@@ -30,7 +30,7 @@ def cards(course):
     sections = read(course.path('structure'))['sections']
     for figure in read(course.path('structure')).get('figures', []):
         path = course.path('figures') / f"{figure['id']}.svg"
-        if not path.is_file() or figure.get('kind') == 'table':
+        if not path.is_file() or figure.get('kind') == 'table' or figure['id'].startswith('tab-'):
             continue
         members = [s['id'] for s in sections if s['source'] == figure['source'] and figure['page'] in s['pages']]
         requirements = figure.get('must_know', figure.get('drawing', {}).get('must_know', []))
@@ -119,6 +119,7 @@ def run(course):
     for chapter in chapters:
         keys = set(notes_by_chapter[chapter['id']])
         package(output / f"{chapter['stem']}-Anki.apkg", [deck for key, deck in decks.items() if key in keys])
-    index(course, output, produced)
+    index(course, output, produced, [course.path('figures') / f"{f['id']}.svg"
+                                   for f in read(course.path('structure')).get('figures', [])])
     return {'cards': len(all_cards), 'by_kind': dict(Counter(c['kind'] for c in all_cards)),
             'files': [p.relative_to(course.root).as_posix() for p in produced]}

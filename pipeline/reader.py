@@ -55,7 +55,7 @@ def run(course):
     vendor = source / 'node_modules/pdfjs-dist'
     if not (vendor / 'build/pdf.mjs').is_file():
         raise ValueError('PDF.js fehlt: npm ci --prefix interactive --ignore-scripts ausführen')
-    planned = []
+    planned, inputs = [], []
     for chapter in chapters:
         number = chapter['number']
         pdf = course.root / 'build/pdf' / (chapter['stem'] + '.pdf')
@@ -72,6 +72,9 @@ def run(course):
         path = course.root / f'curation/interactive/{prefix(course)}-{number}-Timeline.json'
         value = read(path, dict(version=1, chapter=number, pdf_sha256=record['pdf_sha256'],
                                 audio_sha256=record['audio_sha256'], annotations=[]))
+        inputs.extend([pdf, path])
+        if media:
+            inputs.append(media)
         with pymupdf.open(pdf) as doc:
             validate(value, record, pages=len(doc))
         planned.append((record, pdf, media, value))
@@ -87,9 +90,10 @@ def run(course):
         if static:
             shell.append(name)
 
-    for path in sorted(source.iterdir()):
-        if path.is_file() and path.suffix in {'.mjs', '.css', '.svg'} and not path.name.endswith('.test.mjs') and path.name not in {'reader-singlefile-boot.mjs', 'reader-service-worker.mjs'}:
-            copy(path, path.name, True)
+    for name in ('reader-app.mjs', 'reader-navigation.mjs', 'reader-offline.mjs', 'reader-timeline.mjs', 'reader.css', 'reader-icon.svg'):
+        copy(source / name, name, True)
+        inputs.append(source / name)
+    inputs.extend([source / 'reader.html', source / 'reader-service-worker.mjs'])
     for relative in ('build/pdf.mjs', 'build/pdf.worker.mjs', 'web', 'cmaps', 'standard_fonts', 'wasm'):
         path = vendor / relative
         for file in sorted(path.rglob('*')) if path.is_dir() else [path]:
@@ -107,7 +111,8 @@ def run(course):
         target = output / record['timeline']
         write(target, value)
         produced.append(target)
-    course_info = {**course.data['course'], 'export_prefix': prefix(course)}
+    course_info = {key: course.data['course'][key] for key in ('id', 'title', 'language') if key in course.data['course']}
+    course_info['export_prefix'] = prefix(course)
     write(output / 'reader-manifest.json', dict(version=1, course=course_info, chapters=[item[0] for item in planned]))
     template = (source / 'reader.html').read_text(encoding='utf-8')
     write(output / 'reader.html', template.replace('__COURSE_TITLE__', html.escape(course_info['title']))
@@ -127,5 +132,5 @@ def run(course):
           'PDF und optionales Audio liegen lokal. Automatische Markierungen sind ungeprüft.\n'
           'Kapitel offline speichern lädt nur das gewählte Kapitel in diesen Browser.\n')
     produced.extend(output / name for name in ['reader-service-worker.mjs', 'reader-offline-index.json', 'Reader-starten.cmd', 'Reader-Anleitung.txt'])
-    index(course, output, produced)
+    index(course, output, produced, inputs)
     return {'chapters': len(planned), 'audios': len(audio), 'directory': str(output)}

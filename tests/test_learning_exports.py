@@ -95,3 +95,16 @@ def test_cloze_cannot_silently_drop_a_card_without_deletion_marker(course):
     result['cards'][0].update(kind='cloze', cloze='keine Lücke')
     with pytest.raises(ValueError, match='Lückentext'):
         validate_result(job, result)
+
+
+def test_tables_do_not_become_sketch_cards(course):
+    from pipeline.anki_export import run
+    structure = read(course.path('structure'))
+    structure['figures'] = [dict(id='tab-01', source='skript', page=1, title='Einheiten', bbox=[0,0,20,20])]
+    write(course.path('structure'), structure)
+    write(course.path('figures') / 'tab-01.svg', '<svg xmlns="http://www.w3.org/2000/svg"><text>Einheiten</text></svg>')
+    from pipeline.jobs import review
+    review(course, 'test')
+    answer_all(course)
+    build(course)
+    assert run(course)['by_kind'].get('sketch', 0) == 0

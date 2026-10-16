@@ -108,7 +108,7 @@ def run(course):
     output, produced, problems = course.root / 'build/pdf', [], []
     stamps = read(output / '.pdf-stamps.json', {})
     figures = {p.name: file_hash(p) for p in course.path('figures').glob('*.svg')}
-    tasks = []
+    tasks, complete_parts = [], []
     chapters = discover(course)
     for chapter in chapters:
         body = script(course, chapter['sections'])
@@ -116,9 +116,10 @@ def run(course):
             s['id'] in chapter['sections'] and s['source'] == f['source'] and f['page'] in s['pages']
             for s in read(course.path('structure'))['sections'])]
         body += '\n\n' + '\n\n'.join(f"![{f.get('title', f['id'])}](figures/reconstructed/{f['id']}.svg)" for f in related)
+        complete_parts.append(body)
         tasks.append((chapter['stem'], chapter['title'], body))
         tasks.append((chapter['stem'] + '-Zusammenfassung', chapter['title'] + ' – KI-Lernleitfaden', guides(course, chapter['sections'])))
-    tasks.extend([(prefix(course) + '-Gesamtskript', course.data['course']['title'], script(course)),
+    tasks.extend([(prefix(course) + '-Gesamtskript', course.data['course']['title'], '\n\n'.join(complete_parts)),
                   (prefix(course) + '-Musterloesungen', 'Musterlösungen – KI-Erklärung, ungeprüft',
                    (course.path('learning') / 'musterloesungen.md').read_text(encoding='utf-8'))])
     for name, title, body in tasks:
@@ -129,6 +130,7 @@ def run(course):
             stamps[name] = {'key': key, 'sha256': file_hash(path)}
         produced.append(path)
     write(output / '.pdf-stamps.json', stamps)
-    index(course, output, produced)
+    index(course, output, produced, [course.path('figures') / f"{f['id']}.svg"
+                                   for f in read(course.path('structure')).get('figures', [])])
     write(course.path('reports') / 'pdf-export.md', '# PDF-Export\n\nLayout benötigt Sichtprüfung.\n\n' + '\n'.join(problems) + '\n')
     return {'chapters': len(chapters), 'files': len(produced), 'warnings': problems}

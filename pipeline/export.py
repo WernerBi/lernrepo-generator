@@ -155,5 +155,5 @@ def run(course, compile_pdf=False):
             archive.write(path, path.name)
     write(output / "export-manifest.json", [p.name for p in produced])
     from .artifacts import index
-    index(course, output, produced)
+    index(course, output, produced, list(course.path('figures').glob('*.svg')))
     return dict(files=len(produced), zip=str(release), cards=len(cards))

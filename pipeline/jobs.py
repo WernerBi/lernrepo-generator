@@ -7,9 +7,10 @@ from .io import digest, file_hash, identifier, read, write
 def state(course):
     value = {"config": course.data, "manifest": read(course.path("manifest")),
              "structure": read(course.path("structure"))}
-    path = course.root / 'curation/text-corrections.json'
-    if path.exists():
-        value['text_corrections'] = read(path)
+    for name in ('text-corrections', 'exam-links'):
+        path = course.root / f'curation/{name}.json'
+        if path.exists():
+            value[name] = read(path)
     return value
 
 

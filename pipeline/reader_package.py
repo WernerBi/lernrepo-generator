@@ -61,5 +61,5 @@ def run(course):
         path = output / (chapters[record['number']]['stem'] + '-Lernreader.html')
         write(path, render_html(template, css, boot, payload, licenses))
         produced.append(path)
-    index(course, output, produced)
+    index(course, output, produced, [root / 'artifact-index.json', course.root / 'interactive/reader-singlefile-boot.mjs'])
     return {'chapters': len(produced), 'directory': str(output)}
