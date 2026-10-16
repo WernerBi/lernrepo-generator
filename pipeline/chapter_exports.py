@@ -1,7 +1,7 @@
 """Self-contained, source-labelled chapter contexts for NotebookLM and other tools."""
 from .artifacts import index
 from .build import assert_build_current
-from .chapters import discover, prefix
+from .chapters import discover, prefix, slug
 from .io import read, write
 from .jobs import approved
 
@@ -53,7 +53,7 @@ def notebooklm(course):
     output, produced = course.root / 'build/notebooklm', []
     full = script(course)
     for chapter in chapters:
-        name = f"{prefix(course)}-{chapter['number']}-NotebookLM-Kontext-{chapter['stem'].split('-', 2)[-1]}.md"
+        name = f"{prefix(course)}-{chapter['number']}-NotebookLM-Kontext-{slug(chapter['title'])}.md"
         title = f"{prefix(course)}-{chapter['number']}-"
         body = (f"# {course.data['course']['title']} – Kapitel {chapter['number']}: {chapter['title']}\n\n"
                 '## Anleitung\n\nDiese Datei ist der einzige Kontext für das gewählte Kapitel. '

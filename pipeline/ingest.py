@@ -26,7 +26,7 @@ def extract(path, spec):
         from .apkg_reader import read as read_anki
         notes, decks = read_anki(path)
         return [dict(pdf_page=i, text="\n".join(note.fields), extraction="anki-import",
-                     needs_review=True, note_id=note.note_id, decks=decks)
+                     needs_review=True, note_id=note.note_id, fields=list(note.fields), decks=decks)
                 for i, note in enumerate(notes, 1)]
     if path.suffix.lower() in {".md", ".txt", ".tex", ".csv", ".tsv"}:
         return [dict(pdf_page=i, text=text, extraction="text", needs_review=False)

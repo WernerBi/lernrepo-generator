@@ -183,6 +183,9 @@ def validate_result(job, result, verify_wording=True):
         if result[field] and allowed[field] not in products:
             raise ValueError(f"Nicht bestelltes Lernprodukt: {field}")
         for item in result[field]:
+            if field == 'cards' and item.get('kind') == 'cloze':
+                if not __import__('re').search(r'\{\{c[1-9]\d*::.+?\}\}', item.get('cloze', '')):
+                    raise ValueError('Lückentext braucht mindestens {{c1::Antwort}}')
             if any((r["source"], r["page"]) not in refs for r in item["refs"]):
                 raise ValueError("Quellenverweis außerhalb des Auftrags")
             if "id" in item:
