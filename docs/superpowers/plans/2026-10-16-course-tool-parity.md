@@ -148,11 +148,15 @@ Kapitelnummer und SHA-256 von PDF/Audio, Zeitintervalle und normierte Koordinate
   dokumentieren; KI-Durchgang über `pipeline.ailog.append` protokollieren.
 - [x] `git diff --check`, Branch-/Commit-Konventionen und Diff auf Kursdaten prüfen.
 - [x] Commit: `test: verify complete course tooling and document workflow`.
-- [ ] Branch normal pushen und Pull Request erstellen; bei fehlenden Zielrechten
-  autorisierten Fork-Weg versuchen. CI abwarten und bestätigte Fehler beheben.
-  Kein Merge. Wenn GitHub den PR technisch verweigert, exakten Hinderungsgrund melden.
+- [x] Branch normal in `WernerBi/lernrepo-generator` pushen und
+  [PR #4](https://github.com/leobischof/lernrepo-generator/pull/4) gegen das Ursprungsrepo
+  erstellen. Der aktive Zugang hat dort keine Schreibrechte; der Fork gehört zum
+  autorisierten PR-Weg. Kein Merge.
+- [ ] GitHub-CI nach Maintainer-Freigabe prüfen. GitHub meldet ausdrücklich
+  „This workflow is awaiting approval from a maintainer in #4“ (`action_required`,
+  keine Jobs gestartet). Die Freigabe kann der aktive Zugang nicht erteilen.
 
 ## Prüfnachweis
 
-[Lokale Prüfungen und Grenzen](../../pruefung-2026-10-16.md). Der letzte Schritt
-bleibt bis zum GitHub-PR und dessen CI-Status separat nachvollziehbar.
+[Lokale Prüfungen und Grenzen](../../pruefung-2026-10-16.md). Lokale Umsetzung,
+Prüfungen und PR sind abgeschlossen; der GitHub-CI-Start wartet auf den Maintainer.
